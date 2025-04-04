@@ -1,0 +1,19 @@
+<h1>Welcome to the Application</h1>
+<p>Your gems have been successfully installed:</p>
+<ul>
+  <li>Devise - Authentication</li>
+  <li>Pundit - Authorization</li>
+  <li>Inertia Rails - Frontend integration</li>
+  <li>JSONAPI Serializer - API serialization</li>
+  <li>Rolify - Role management</li>
+</ul>
+
+<% if user_signed_in? %>
+  <p>You are signed in as: <%= current_user.email %></p>
+  <%= link_to "Sign out", destroy_user_session_path, method: :delete, data: { turbo_method: :delete } %>
+<% else %>
+  <p>
+    <%= link_to "Sign in", new_user_session_path %> |
+    <%= link_to "Sign up", new_user_registration_path %>
+  </p>
+<% end %> 
