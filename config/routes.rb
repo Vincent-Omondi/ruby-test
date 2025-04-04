@@ -1,4 +1,19 @@
 Rails.application.routes.draw do
+  # Remove auto-generated routes
+  # get 'locations/index'
+  # get 'locations/show'
+  # get 'locations/new'
+  # get 'locations/create'
+  # get 'locations/edit'
+  # get 'locations/update'
+  # get 'locations/destroy'
+  
+  # Add RESTful routes
+  resources :locations
+  
+  # Example route to test the new layout
+  get 'example', to: 'example#index'
+  
   devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -8,4 +23,9 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "home#index"
+  
+  # Admin routes
+  namespace :admin do
+    resources :users, only: [:index, :destroy]
+  end
 end
