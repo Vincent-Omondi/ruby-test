@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Project</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    
+    <!-- Import Tailwind CSS directly from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#3D2D1C',
+              secondary: '#F8C05C',
+              accent: '#4A90E2',
+            },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+              serif: ['Georgia', 'serif'],
+            },
+          }
+        }
+      }
+    </script>
+    
+    <!-- Ensure we have basic styles applied -->
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', system-ui, sans-serif;
+        color: #333;
+        line-height: 1.5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+    </style>
+    
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application.tailwind", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+  </head>
+
+  <body>
+    <%= content_for(:head) %>
+    <div id="app" data-page='<%= raw(@inertia_data.to_json) %>'></div>
+  </body>
+</html> 
