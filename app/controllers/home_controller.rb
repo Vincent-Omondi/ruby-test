@@ -1,4 +1,6 @@
 class HomeController < ApplicationController
+  skip_before_action :authenticate_user!, only: [:index]
+  
   def index
     props = {
       greeting: "Welcome to Test Project",
@@ -18,5 +20,9 @@ class HomeController < ApplicationController
     Rails.logger.info "With props: #{props.inspect}"
     
     render layout: 'inertia'
+  end
+  
+  def protected
+    render inertia: "Protected"
   end
 end 
