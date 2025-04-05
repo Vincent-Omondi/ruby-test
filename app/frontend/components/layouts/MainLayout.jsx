@@ -1,13 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import Navbar from './Navbar';
 
 const MainLayout = ({ title, children }) => {
+  // Get the auth prop from Inertia
+  const { auth } = usePage().props;
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Head title={title} />
-      <Navbar />
+      <Navbar auth={auth} />
       
       <main className="flex-grow">
         {children}
