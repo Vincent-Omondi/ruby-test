@@ -4,7 +4,8 @@ class HomeController < ApplicationController
   def index
     props = {
       greeting: "Welcome to Test Project",
-      description: "Find and share locations around the world"
+      description: "Find and share locations around the world",
+      auth: { user: current_user }
     }
     
     # Set the Inertia JSON response directly
