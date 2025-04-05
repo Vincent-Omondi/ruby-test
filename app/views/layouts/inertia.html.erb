@@ -51,6 +51,12 @@
 
   <body>
     <%= content_for(:head) %>
-    <div id="app" data-page='<%= raw(@inertia_data.to_json) %>'></div>
+    <div id="app" data-page='<%= raw(
+      # Use @inertia if it's set, otherwise fall back to @inertia_data
+      (defined?(@inertia) ? @inertia : (defined?(@inertia_data) ? @inertia_data : {
+        component: "Error", 
+        props: { message: "No Inertia data provided" }
+      })).to_json
+    ) %>'></div>
   </body>
 </html> 
