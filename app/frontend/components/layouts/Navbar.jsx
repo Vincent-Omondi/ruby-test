@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { Link } from '@inertiajs/react';
+import PropTypes from 'prop-types';
 
-const Navbar = () => {
+const Navbar = ({ auth }) => {
   const [isOpen, setIsOpen] = useState(false);
   
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
+  
+  // Make sure auth and auth.user don't throw errors if they're null/undefined
+  const isAuthenticated = auth && auth.user;
   
   return (
     <nav className="bg-[#3D2D1C] text-white">
@@ -64,18 +68,34 @@ const Navbar = () => {
           {/* Auth Buttons */}
           <div className="hidden md:block">
             <div className="flex items-center space-x-4">
-              <Link 
-                href="/login" 
-                className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium"
-              >
-                Log in
-              </Link>
-              <Link 
-                href="/signup" 
-                className="bg-white text-[#3D2D1C] hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium"
-              >
-                Sign up
-              </Link>
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-white text-sm">Hello, {auth.user.email}</span>
+                  <Link 
+                    href="/users/sign_out"
+                    method="delete"
+                    as="button"
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  >
+                    Sign out
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <a 
+                    href="/users/sign_in" 
+                    className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium"
+                  >
+                    Log in
+                  </a>
+                  <a 
+                    href="/users/sign_up" 
+                    className="bg-white text-[#3D2D1C] hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium"
+                  >
+                    Sign up
+                  </a>
+                </>
+              )}
             </div>
           </div>
           
@@ -152,23 +172,47 @@ const Navbar = () => {
         </div>
         <div className="pt-4 pb-3 border-t border-gray-700">
           <div className="flex items-center px-5">
-            <Link 
-              href="/login" 
-              className="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium"
-            >
-              Log in
-            </Link>
-            <Link 
-              href="/signup" 
-              className="ml-4 bg-white text-[#3D2D1C] hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium"
-            >
-              Sign up
-            </Link>
+            {isAuthenticated ? (
+              <div className="flex flex-col space-y-2 w-full">
+                <span className="text-white text-sm">Hello, {auth.user.email}</span>
+                <Link 
+                  href="/users/sign_out"
+                  method="delete"
+                  as="button"
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                >
+                  Sign out
+                </Link>
+              </div>
+            ) : (
+              <>
+                <a 
+                  href="/users/sign_in" 
+                  className="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium"
+                >
+                  Log in
+                </a>
+                <a 
+                  href="/users/sign_up" 
+                  className="ml-4 bg-white text-[#3D2D1C] hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium"
+                >
+                  Sign up
+                </a>
+              </>
+            )}
           </div>
         </div>
       </div>
     </nav>
   );
+};
+
+Navbar.propTypes = {
+  auth: PropTypes.object
+};
+
+Navbar.defaultProps = {
+  auth: { user: null }
 };
 
 export default Navbar; 
