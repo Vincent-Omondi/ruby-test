@@ -16,6 +16,18 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
   
+  # Authenticated user routes
+  authenticate :user do
+    get 'dashboard', to: 'dashboard#index'
+    get 'profile', to: 'profile#show'
+    get 'profile/edit', to: 'profile#edit'
+    get 'settings', to: 'settings#index'
+    
+    # Places management for authenticated users
+    get 'my-places', to: 'places#my_places'
+    resources :places
+  end
+  
   get 'protected', to: 'home#protected'
   
   # Placeholder routes for menu items

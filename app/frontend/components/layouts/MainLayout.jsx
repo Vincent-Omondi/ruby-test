@@ -8,15 +8,25 @@ const MainLayout = ({ title, children }) => {
   let pageProps = {};
   try {
     pageProps = usePage().props || {};
+    console.log('MainLayout pageProps:', pageProps);
   } catch (error) {
     console.error('Error accessing page props:', error);
   }
   
   const auth = pageProps.auth || { user: null };
+  console.log('MainLayout auth prop:', auth);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Head title={title} />
+      
+      {/* Debug panel - only in development */}
+      {process.env.NODE_ENV !== 'production' && auth && auth.user && (
+        <div className="bg-blue-100 p-2 text-xs">
+          <p>Logged in as: {auth.user.email} (ID: {auth.user.id})</p>
+        </div>
+      )}
+      
       <Navbar auth={auth} />
       
       <main className="flex-grow">

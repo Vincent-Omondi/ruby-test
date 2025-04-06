@@ -2,10 +2,10 @@ class HomeController < ApplicationController
   skip_before_action :authenticate_user_if_needed!, only: [:index]
   
   def index
+    # Build the props directly with authentication data
     props = {
       greeting: "Welcome to Test Project",
       description: "Find and share locations around the world",
-      # Adding any current_user info that might be needed by the layout
       auth: user_signed_in? ? {
         user: {
           id: current_user.id,
@@ -15,14 +15,11 @@ class HomeController < ApplicationController
       } : { user: nil }
     }
     
-    # Set the page explicitly using inertia_render
-    inertia_render(
-      component: 'Home',
-      props: props
-    )
+    # Directly render the component
+    render inertia: 'Home', props: props
   end
   
   def protected
-    render inertia: "Protected", url: request.original_url
+    render inertia: "Protected"
   end
 end 

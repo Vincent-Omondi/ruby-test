@@ -39,14 +39,17 @@ class Users::SessionsController < Devise::SessionsController
       # Log the received parameters for debugging
       Rails.logger.info "Login Parameters: #{params.inspect}"
       
-      # Use the proper parameters based on the request format
-      auth_params = if params[:user]
-                     params.require(:user).permit(:email, :password, :remember_me)
-                   else
-                     params.permit(:email, :password, :remember_me)
-                   end
+      # Extract parameters from any of the possible sources
+      email = params[:email] || params.dig(:user, :email) || params.dig(:session, :email)
+      password = params[:password] || params.dig(:user, :password) || params.dig(:session, :password)
+      remember_me = params[:remember_me] || params.dig(:user, :remember_me) || params.dig(:session, :remember)
       
-      Rails.logger.info "Using auth_params: #{auth_params.inspect}"
+      if email.blank? || password.blank?
+        raise StandardError, "Email or password missing"
+      end
+      
+      # Manually set the parameters for Warden
+      request.params[:user] = { email: email, password: password, remember_me: remember_me }
       
       self.resource = warden.authenticate!(auth_options)
       set_flash_message!(:notice, :signed_in)
@@ -57,7 +60,7 @@ class Users::SessionsController < Devise::SessionsController
     rescue => e
       # Handle authentication failure
       Rails.logger.error "Authentication error: #{e.message}"
-      self.resource = resource_class.new(sign_in_params)
+      self.resource = resource_class.new(email: params[:email] || params.dig(:user, :email) || params.dig(:session, :email))
       clean_up_passwords(resource)
       
       render inertia: 'auth/Login', props: {

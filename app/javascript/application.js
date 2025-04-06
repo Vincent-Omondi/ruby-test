@@ -34,6 +34,26 @@ document.addEventListener('DOMContentLoaded', () => {
       let pageData;
       try {
         pageData = JSON.parse(pageContent);
+        
+        // Debug check for props content
+        if (pageData && pageData.props) {
+          console.log('All page props keys:', Object.keys(pageData.props));
+        }
+        
+        // Ensure auth is always present
+        if (pageData && pageData.props && !pageData.props.auth) {
+          console.log('Adding default auth object to props');
+          pageData.props.auth = { user: null };
+        } else if (pageData && pageData.props && pageData.props.auth) {
+          console.log('Auth data found:', pageData.props.auth);
+          
+          // Check if user is authenticated
+          if (pageData.props.auth.user) {
+            console.log('User is authenticated:', pageData.props.auth.user);
+          } else {
+            console.log('User is not authenticated');
+          }
+        }
       } catch (jsonError) {
         console.error('Error parsing JSON data:', jsonError);
         console.error('Raw content that failed to parse:', pageContent);

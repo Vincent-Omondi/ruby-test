@@ -24,6 +24,10 @@ class InertiaDeviseFailureApp < Devise::FailureApp
     }.to_json
   end
   
+  def env
+    @env ||= warden.request.env
+  end
+  
   def request
     @request ||= ActionDispatch::Request.new(env)
   end

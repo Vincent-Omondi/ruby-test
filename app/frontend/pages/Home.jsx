@@ -8,6 +8,13 @@ import LocationCard from '../components/ui/LocationCard';
 const Home = (props) => {
   console.log('Home component props:', props);
   
+  // Debug auth data if present
+  if (props.auth) {
+    console.log('Auth data in Home component:', props.auth);
+  } else {
+    console.warn('No auth data found in Home component props');
+  }
+  
   // Sample location data for display
   const sampleLocations = [
     {
