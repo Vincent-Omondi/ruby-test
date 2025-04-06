@@ -2,25 +2,25 @@ import React from 'react';
 import { useForm, Head } from '@inertiajs/react';
 import MainLayout from '../../components/layouts/MainLayout';
 
-const Login = ({ csrf_token, errors }) => {
+const Register = ({ csrf_token, errors }) => {
   const { data, setData, post, processing, reset } = useForm({
     email: '',
     password: '',
-    remember: false,
+    password_confirmation: '',
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    post('/users/sign_in', {
-      onSuccess: () => reset('password'),
+    post('/users', {
+      onSuccess: () => reset('password', 'password_confirmation'),
     });
   };
 
   return (
-    <MainLayout title="Log In | Test Project">
+    <MainLayout title="Sign Up | Test Project">
       <div className="bg-gray-50 min-h-screen py-12">
         <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Welcome Back</h1>
+          <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Create Account</h1>
           
           {errors && errors.length > 0 && (
             <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
@@ -51,14 +51,9 @@ const Login = ({ csrf_token, errors }) => {
             </div>
             
             <div className="mb-6">
-              <div className="flex items-center justify-between mb-2">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <a href="/users/password/new" className="text-sm text-blue-600 hover:underline">
-                  Forgot password?
-                </a>
-              </div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
               <input
                 id="password"
                 type="password"
@@ -69,17 +64,18 @@ const Login = ({ csrf_token, errors }) => {
               />
             </div>
             
-            <div className="mb-6 flex items-center">
-              <input
-                id="remember"
-                type="checkbox"
-                checked={data.remember}
-                onChange={(e) => setData('remember', e.target.checked)}
-                className="h-4 w-4 text-[#3D2D1C] focus:ring-[#3D2D1C] border-gray-300 rounded"
-              />
-              <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
-                Remember me
+            <div className="mb-6">
+              <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 mb-2">
+                Confirm Password
               </label>
+              <input
+                id="password_confirmation"
+                type="password"
+                value={data.password_confirmation}
+                onChange={(e) => setData('password_confirmation', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3D2D1C] focus:border-transparent"
+                required
+              />
             </div>
             
             <div>
@@ -88,16 +84,16 @@ const Login = ({ csrf_token, errors }) => {
                 disabled={processing}
                 className="w-full bg-[#3D2D1C] text-white py-2 px-4 rounded-md hover:bg-[#4E3D2C] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3D2D1C] disabled:opacity-75"
               >
-                {processing ? 'Logging in...' : 'Log in'}
+                {processing ? 'Creating account...' : 'Create account'}
               </button>
             </div>
           </form>
           
           <div className="mt-6 text-center text-sm">
             <p className="text-gray-600">
-              Don't have an account?{' '}
-              <a href="/users/sign_up" className="text-blue-600 hover:underline font-medium">
-                Sign up
+              Already have an account?{' '}
+              <a href="/users/sign_in" className="text-blue-600 hover:underline font-medium">
+                Log in
               </a>
             </p>
           </div>
@@ -107,4 +103,4 @@ const Login = ({ csrf_token, errors }) => {
   );
 };
 
-export default Login; 
+export default Register; 
