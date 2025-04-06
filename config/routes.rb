@@ -12,7 +12,8 @@ Rails.application.routes.draw do
   get '/signup', to: redirect('/users/sign_up')
   
   devise_for :users, controllers: {
-    sessions: 'users/sessions'
+    sessions: 'users/sessions',
+    registrations: 'users/registrations'
   }
   
   get 'protected', to: 'home#protected'

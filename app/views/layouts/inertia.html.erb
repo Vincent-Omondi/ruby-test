@@ -51,12 +51,30 @@
 
   <body>
     <%= content_for(:head) %>
-    <div id="app" data-page='<%= raw(
-      # Use @inertia if it's set, otherwise fall back to @inertia_data
-      (defined?(@inertia) ? @inertia : (defined?(@inertia_data) ? @inertia_data : {
-        component: "Error", 
-        props: { message: "No Inertia data provided" }
-      })).to_json
-    ) %>'></div>
+    <% 
+      # Prepare the Inertia data outside of the HTML
+      inertia_data = if defined?(@inertia)
+                       @inertia
+                     elsif defined?(@inertia_data)
+                       @inertia_data
+                     else
+                       nil
+                     end
+      
+      # Always ensure URL is included if we have data
+      if inertia_data
+        inertia_data[:url] ||= request.original_url
+        
+        # Ensure component name isn't altered
+        if inertia_data[:component].present? && inertia_data[:component].include?('/')
+          inertia_data[:component] = inertia_data[:component].to_s
+        end
+        
+        data_attribute = raw(inertia_data.to_json)
+      else 
+        data_attribute = '{}'
+      end
+    %>
+    <div id="app" data-page='<%= data_attribute %>'></div>
   </body>
 </html> 
