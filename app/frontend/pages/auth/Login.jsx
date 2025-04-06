@@ -12,6 +12,13 @@ const Login = ({ csrf_token, errors }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     post('/users/sign_in', {
+      data: {
+        user: {
+          email: data.email,
+          password: data.password,
+          remember_me: data.remember
+        }
+      },
       onSuccess: () => reset('password'),
     });
   };
