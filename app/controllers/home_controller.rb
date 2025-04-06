@@ -1,29 +1,28 @@
 class HomeController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:index]
+  skip_before_action :authenticate_user_if_needed!, only: [:index]
   
   def index
     props = {
       greeting: "Welcome to Test Project",
       description: "Find and share locations around the world",
-      auth: { user: current_user }
+      # Adding any current_user info that might be needed by the layout
+      auth: user_signed_in? ? {
+        user: {
+          id: current_user.id,
+          email: current_user.email,
+          admin: current_user.respond_to?(:has_role?) ? current_user.has_role?(:admin) : false
+        }
+      } : { user: nil }
     }
     
-    # Set the Inertia JSON response directly
-    @inertia_data = {
+    # Set the page explicitly using inertia_render
+    inertia_render(
       component: 'Home',
-      props: props,
-      url: request.original_url,
-      version: ""
-    }
-    
-    # Add debug info to logs
-    Rails.logger.info "Rendering Inertia component: #{@inertia_data[:component]}"
-    Rails.logger.info "With props: #{props.inspect}"
-    
-    render layout: 'inertia'
+      props: props
+    )
   end
   
   def protected
-    render inertia: "Protected"
+    render inertia: "Protected", url: request.original_url
   end
 end 
