@@ -36,6 +36,18 @@ class Users::SessionsController < Devise::SessionsController
   # POST /resource/sign_in
   def create
     begin
+      # Log the received parameters for debugging
+      Rails.logger.info "Login Parameters: #{params.inspect}"
+      
+      # Use the proper parameters based on the request format
+      auth_params = if params[:user]
+                     params.require(:user).permit(:email, :password, :remember_me)
+                   else
+                     params.permit(:email, :password, :remember_me)
+                   end
+      
+      Rails.logger.info "Using auth_params: #{auth_params.inspect}"
+      
       self.resource = warden.authenticate!(auth_options)
       set_flash_message!(:notice, :signed_in)
       sign_in(resource_name, resource)
@@ -44,6 +56,7 @@ class Users::SessionsController < Devise::SessionsController
       redirect_to after_sign_in_path_for(resource)
     rescue => e
       # Handle authentication failure
+      Rails.logger.error "Authentication error: #{e.message}"
       self.resource = resource_class.new(sign_in_params)
       clean_up_passwords(resource)
       
