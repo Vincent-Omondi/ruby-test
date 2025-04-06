@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Head } from '@inertiajs/react';
 import MainLayout from '../components/layouts/MainLayout';
 import MapDisplay from '../components/map/MapDisplay';
@@ -160,6 +161,12 @@ const Home = (props) => {
       </section>
     </MainLayout>
   );
+};
+
+Home.propTypes = {
+  greeting: PropTypes.string,
+  description: PropTypes.string,
+  auth: PropTypes.object
 };
 
 export default Home; 

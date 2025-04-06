@@ -4,8 +4,15 @@ import { Head, usePage } from '@inertiajs/react';
 import Navbar from './Navbar';
 
 const MainLayout = ({ title, children }) => {
-  // Get the auth prop from Inertia
-  const { auth } = usePage().props;
+  // Get the auth prop from Inertia with proper fallback
+  let pageProps = {};
+  try {
+    pageProps = usePage().props || {};
+  } catch (error) {
+    console.error('Error accessing page props:', error);
+  }
+  
+  const auth = pageProps.auth || { user: null };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">

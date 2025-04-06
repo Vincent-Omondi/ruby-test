@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from '@inertiajs/react';
 import PropTypes from 'prop-types';
 
-const Navbar = ({ auth }) => {
+const Navbar = ({ auth = { user: null } }) => {
   const [isOpen, setIsOpen] = useState(false);
   
   const toggleMenu = () => {
@@ -209,10 +209,6 @@ const Navbar = ({ auth }) => {
 
 Navbar.propTypes = {
   auth: PropTypes.object
-};
-
-Navbar.defaultProps = {
-  auth: { user: null }
 };
 
 export default Navbar; 
