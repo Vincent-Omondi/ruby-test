@@ -4,27 +4,7 @@ class ApplicationController < ActionController::Base
   # Use Devise's authenticate_user! but don't apply it to Devise controllers
   before_action :authenticate_user_if_needed!
   before_action :ensure_inertia_data
-  
-  inertia_share auth: -> {
-    if current_user
-      {
-        user: {
-          id: current_user.id,
-          email: current_user.email,
-          admin: current_user.has_role?(:admin)
-        }
-      }
-    else
-      { user: nil }
-    end
-  }
-  
-  inertia_share flash: -> {
-    {
-      success: flash.notice,
-      error: flash.alert
-    }
-  }
+  before_action :set_inertia_share
   
   # Handle specific errors rather than all StandardError
   rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
@@ -95,6 +75,24 @@ class ApplicationController < ActionController::Base
     unless user_signed_in?
       # Never use format.json to avoid Inertia mix-ups
       redirect_to new_user_session_path, alert: "You need to sign in before continuing."
+    end
+  end
+
+  def set_inertia_share
+    inertia_shared_data do
+      {
+        auth: user_signed_in? ? {
+          user: {
+            id: current_user.id,
+            email: current_user.email,
+            admin: current_user.respond_to?(:has_role?) ? current_user.has_role?(:admin) : false
+          }
+        } : { user: nil },
+        flash: {
+          success: flash.notice,
+          error: flash.alert
+        }
+      }
     end
   end
 end
