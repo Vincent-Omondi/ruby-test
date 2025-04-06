@@ -33,6 +33,21 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # POST /resource
   def create
+    # Log the received parameters to help with debugging
+    Rails.logger.info "Registration Parameters: #{params.inspect}"
+    
+    # Extract the parameters depending on how they're submitted
+    sign_up_params = if params[:user]
+                       params.require(:user).permit(:email, :password, :password_confirmation)
+                     elsif params[:registration]
+                       params.require(:registration).permit(:email, :password, :password_confirmation)
+                     else
+                       # Handle direct parameters
+                       params.permit(:email, :password, :password_confirmation)
+                     end
+    
+    Rails.logger.info "Using sign_up_params: #{sign_up_params.inspect}"
+    
     build_resource(sign_up_params)
 
     resource.save
@@ -52,6 +67,8 @@ class Users::RegistrationsController < Devise::RegistrationsController
     else
       clean_up_passwords resource
       set_minimum_password_length
+      
+      Rails.logger.info "Registration failed with errors: #{resource.errors.full_messages}"
       
       render inertia: 'auth/Register', props: {
         csrf_token: form_authenticity_token,
