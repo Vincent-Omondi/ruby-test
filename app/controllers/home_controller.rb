@@ -1,6 +1,4 @@
 class HomeController < ApplicationController
-  skip_before_action :authenticate_user_if_needed!, only: [:index]
-  
   def index
     # Build the props directly with authentication data
     props = {
