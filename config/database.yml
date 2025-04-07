@@ -35,6 +35,6 @@ test:
 
 production:
   <<: *default
-  database: test_project_production
+  url: <%= ENV['DATABASE_URL'] %>
   username: test_project
   password: <%= ENV["TEST_PROJECT_DATABASE_PASSWORD"] %>
