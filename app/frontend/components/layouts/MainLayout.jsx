@@ -20,13 +20,6 @@ const MainLayout = ({ title, children }) => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Head title={title} />
       
-      {/* Debug panel - only in development */}
-      {process.env.NODE_ENV !== 'production' && auth && auth.user && (
-        <div className="bg-blue-100 p-2 text-xs">
-          <p>Logged in as: {auth.user.email} (ID: {auth.user.id})</p>
-        </div>
-      )}
-      
       <Navbar auth={auth} />
       
       <main className="flex-grow">
