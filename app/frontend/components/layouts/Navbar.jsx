@@ -33,12 +33,6 @@ const Navbar = ({ auth = { user: null } }) => {
             <div className="ml-10 flex items-center space-x-8">
               {/* Common Links for All Users */}
               <Link 
-                href="/" 
-                className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium"
-              >
-                Home
-              </Link>
-              <Link 
                 href="/about" 
                 className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium"
               >
@@ -59,12 +53,6 @@ const Navbar = ({ auth = { user: null } }) => {
                     className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium"
                   >
                     Add Location
-                  </Link>
-                  <Link 
-                    href="/my-places" 
-                    className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium"
-                  >
-                    My Places
                   </Link>
                 </>
               ) : (
@@ -167,12 +155,6 @@ const Navbar = ({ auth = { user: null } }) => {
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           {/* Common mobile links */}
           <Link 
-            href="/" 
-            className="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium"
-          >
-            Home
-          </Link>
-          <Link 
             href="/about" 
             className="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium"
           >
@@ -193,12 +175,6 @@ const Navbar = ({ auth = { user: null } }) => {
                 className="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium"
               >
                 Add Location
-              </Link>
-              <Link 
-                href="/my-places" 
-                className="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium"
-              >
-                My Places
               </Link>
             </>
           ) : (
