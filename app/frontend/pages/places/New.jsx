@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useForm, Head } from '@inertiajs/react';
+import { useForm, Head, Link } from '@inertiajs/react';
 import MainLayout from '../../components/layouts/MainLayout';
 
 const NewPlace = ({ csrf_token, errors = [] }) => {
@@ -101,12 +101,12 @@ const NewPlace = ({ csrf_token, errors = [] }) => {
             </div>
             
             <div className="flex items-center justify-between">
-              <a 
-                href="/places"
+              <Link 
+                href="/"
                 className="text-gray-600 hover:text-gray-800"
               >
                 Cancel
-              </a>
+              </Link>
               <button
                 type="submit"
                 disabled={processing}
