@@ -10,6 +10,7 @@ import ErrorComponent from '../frontend/pages/Error';
 // Preload critical auth components to prevent white screen issues
 import LoginComponent from '../frontend/pages/auth/Login.jsx';
 import RegisterComponent from '../frontend/pages/auth/Register.jsx';
+import NewPlaceComponent from '../frontend/pages/places/New.jsx';
 
 // Create a component cache to avoid loading issues
 const componentCache = {
@@ -19,7 +20,9 @@ const componentCache = {
   'Sign_in': LoginComponent,
   'auth/Register': RegisterComponent,
   'Register': RegisterComponent,
-  'Sign_up': RegisterComponent
+  'Sign_up': RegisterComponent,
+  'places/New': NewPlaceComponent,
+  'New': NewPlaceComponent
 };
 
 // Initialize Inertia.js progress indicator
@@ -86,6 +89,21 @@ document.addEventListener('DOMContentLoaded', () => {
       // Debug check for props content
       if (pageData && pageData.props) {
         console.log('All page props keys:', Object.keys(pageData.props));
+        
+        // IMPORTANT: Make sure greeting, description, and places are included
+        // This is where the data is being lost
+        if (!pageData.props.places) {
+          console.warn('Places prop is missing from the page data');
+          pageData.props.places = [];
+        }
+        
+        if (!pageData.props.greeting) {
+          pageData.props.greeting = "Find and Share Locations Around the World";
+        }
+        
+        if (!pageData.props.description) {
+          pageData.props.description = "Explore interesting places or add your own locations to the map";
+        }
       }
       
       // Ensure auth is always present
@@ -170,6 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (componentCache[name]) {
           console.log(`Loading component from cache: ${name}`);
           return componentCache[name];
+        }
+        
+        // Special case for places/New
+        if (name === 'New' || name === 'places/New') {
+          console.log('Loading places/New component');
+          return NewPlaceComponent;
         }
         
         try {
