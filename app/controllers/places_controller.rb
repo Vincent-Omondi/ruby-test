@@ -62,13 +62,6 @@ class PlacesController < ApplicationController
     redirect_to places_path, notice: 'Place deleted successfully'
   end
   
-  def my_places
-    places = current_user.places
-    render inertia: 'places/MyPlaces', props: {
-      places: places.map { |place| place_json(place) }
-    }
-  end
-  
   private
   
   def set_place
