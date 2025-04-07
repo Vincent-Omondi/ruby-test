@@ -14,7 +14,7 @@ class InertiaDeviseFailureApp < Devise::FailureApp
     self.response_body = {
       component: 'auth/Login',
       props: {
-        csrf_token: request.env["action_dispatch.request_id"],
+        csrf_token: warden.request.env["action_dispatch.request_id"],
         resource: {},
         resource_name: scope,
         errors: [i18n_message]
@@ -22,14 +22,6 @@ class InertiaDeviseFailureApp < Devise::FailureApp
       url: attempted_path || request.path,
       version: "1.0"
     }.to_json
-  end
-  
-  def env
-    @env ||= warden.request.env
-  end
-  
-  def request
-    @request ||= ActionDispatch::Request.new(env)
   end
   
   def recall
@@ -45,11 +37,11 @@ class InertiaDeviseFailureApp < Devise::FailureApp
     end
     
     recall_controller = controller_name.constantize.new
-    recall_controller.request = @request
+    recall_controller.request = request
     recall_controller.response = @response
-    recall_controller.params = @request.params
+    recall_controller.params = request.params
     
-    env["devise.mapping"] = Devise.mappings[scope]
+    warden.request.env["devise.mapping"] = Devise.mappings[scope]
     recall_controller.process(recall)
   end
 end 
