@@ -18,8 +18,6 @@ Rails.application.routes.draw do
   
   # Authenticated user routes
   authenticate :user do
-    get 'my-places', to: 'places#my_places'
-    
     # Only keep the new, create, edit, update, and destroy actions for places
     resources :places, except: [:index, :show]
   end
