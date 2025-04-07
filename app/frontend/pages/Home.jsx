@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import MainLayout from '../components/layouts/MainLayout';
 import MapDisplay from '../components/map/MapDisplay';
 import LocationCard from '../components/ui/LocationCard';
@@ -80,13 +80,13 @@ const Home = ({ greeting, description, places = [], auth }) => {
               View All Locations
             </a>
             {isAuthenticated ? (
-              <a href="/places/new" className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-3 rounded-md font-medium">
+              <Link href="/places/new" className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-3 rounded-md font-medium">
                 Add Location
-              </a>
+              </Link>
             ) : (
-              <a href="/users/sign_in" className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-3 rounded-md font-medium">
+              <Link href="/users/sign_in" className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-3 rounded-md font-medium">
                 Sign In to Add
-              </a>
+              </Link>
             )}
           </div>
         </div>
@@ -151,9 +151,9 @@ const Home = ({ greeting, description, places = [], auth }) => {
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold text-gray-800">All Locations</h2>
             {isAuthenticated && (
-              <a href="/places/new" className="bg-[#3D2D1C] text-white px-4 py-2 rounded-md hover:bg-[#4E3D2C] text-sm font-medium">
+              <Link href="/places/new" className="bg-[#3D2D1C] text-white px-4 py-2 rounded-md hover:bg-[#4E3D2C] text-sm font-medium">
                 Add New Location
-              </a>
+              </Link>
             )}
           </div>
           
@@ -161,13 +161,13 @@ const Home = ({ greeting, description, places = [], auth }) => {
             <div className="text-center py-10 bg-gray-50 rounded-lg">
               <p className="text-xl text-gray-500 mb-6">No locations have been added yet</p>
               {isAuthenticated ? (
-                <a href="/places/new" className="bg-[#3D2D1C] text-white hover:bg-[#4E3D2C] px-6 py-3 rounded-md font-medium">
+                <Link href="/places/new" className="bg-[#3D2D1C] text-white hover:bg-[#4E3D2C] px-6 py-3 rounded-md font-medium">
                   Add First Location
-                </a>
+                </Link>
               ) : (
-                <a href="/users/sign_in" className="bg-[#3D2D1C] text-white hover:bg-[#4E3D2C] px-6 py-3 rounded-md font-medium">
+                <Link href="/users/sign_in" className="bg-[#3D2D1C] text-white hover:bg-[#4E3D2C] px-6 py-3 rounded-md font-medium">
                   Sign In to Add Location
-                </a>
+                </Link>
               )}
             </div>
           ) : (
