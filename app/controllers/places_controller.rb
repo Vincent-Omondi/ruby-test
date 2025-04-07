@@ -58,8 +58,18 @@ class PlacesController < ApplicationController
   end
   
   def destroy
-    @place.destroy
-    redirect_to places_path, notice: 'Place deleted successfully'
+    @place = Place.find(params[:id])
+    
+    # Check if current user is the owner
+    if @place.user_id != current_user.id
+      return redirect_to root_path, alert: 'You are not authorized to delete this location'
+    end
+    
+    if @place.destroy
+      redirect_to root_path, notice: 'Location successfully deleted'
+    else
+      redirect_to root_path, alert: 'Failed to delete location'
+    end
   end
   
   private
