@@ -1,76 +1,105 @@
 import React from 'react';
-import { Head } from '@inertiajs/react';
+import PropTypes from 'prop-types';
+import { Head, Link } from '@inertiajs/react';
 import MainLayout from '../components/layouts/MainLayout';
 import MapDisplay from '../components/map/MapDisplay';
 import LocationCard from '../components/ui/LocationCard';
 
-const Home = (props) => {
-  console.log('Home component props:', props);
+const Home = ({ greeting, description, places = [], auth }) => {
+  // Debug all incoming props
+  console.log('Raw Home component props:', { greeting, description, places, auth });
   
-  // Sample location data for display
+  // Ensure places is an array and log its contents
+  const databasePlaces = Array.isArray(places) ? places : [];
+  console.log('Processed database places:', databasePlaces);
+  console.log('Database places count:', databasePlaces.length);
+  
+  // Sample locations fallback (use if no places provided)
   const sampleLocations = [
     {
-      id: 1,
+      id: 'sample-1',
       name: 'Tech Hub Coworking Space',
       description: 'A modern workspace for tech professionals with high-speed internet and 24/7 access.',
       latitude: '-1.2921',
       longitude: '36.8219',
-      createdBy: { name: 'Jane Smith' }
+      created_by: { name: 'vin@gmail.com' }
     },
     {
-      id: 2,
+      id: 'sample-2',
       name: 'Serene Park Viewpoint',
       description: 'Beautiful park with great views of the city skyline, perfect for outdoor activities.',
       latitude: '-1.2823',
-      longitude: '36.8172',
-      createdBy: { name: 'John Doe' }
+      longitude: '36.8219',
+      created_by: { name: 'vin@gmail.com' }
     },
     {
-      id: 3,
+      id: 'sample-3',
       name: 'Downtown Cultural Center',
       description: 'Cultural hub hosting art exhibitions, performances and community events.',
       latitude: '-1.2884',
       longitude: '36.8233',
-      createdBy: { name: 'Alice Johnson' }
+      created_by: { name: 'vin@gmail.com' }
     },
     {
-      id: 4,
+      id: 'sample-4',
       name: 'Riverside Cafe',
       description: 'Quiet cafe with outdoor seating overlooking the river. Great for remote work.',
       latitude: '-1.2911',
       longitude: '36.8261',
-      createdBy: { name: 'Robert Williams' }
+      created_by: { name: 'vin@gmail.com' }
     }
   ];
 
+  // Only use sample locations if we don't have any database places
+  const locationsToDisplay = databasePlaces.length > 0 
+    ? databasePlaces 
+    : sampleLocations;
+  console.log('Final locations to display:', locationsToDisplay);
+  console.log('Total locations count:', locationsToDisplay.length);
+
+  // Debug auth data if present
+  if (auth) {
+    console.log('Auth data in Home component:', auth);
+  } else {
+    console.warn('No auth data found in Home component props');
+  }
+
+  const isAuthenticated = auth && auth.user;
+
   return (
-    <MainLayout title="Home | Test Project">
+    <MainLayout title="Interactive Map | All Locations">
       {/* Hero Section */}
       <section className="bg-[#3D2D1C] text-white py-20">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">{props.greeting || "Find and share locations around the world"}</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">{greeting || "Find and share locations around the world"}</h1>
           <p className="text-xl md:text-2xl max-w-2xl mx-auto mb-8">
-            {props.description || "Discover interesting places, mark your favorites and connect with like-minded people"}
+            {description || "Discover interesting places around the world and add your own locations"}
           </p>
           <div className="flex justify-center space-x-4">
-            <button className="bg-white text-[#3D2D1C] hover:bg-gray-100 px-6 py-3 rounded-md font-medium">
-              Explore Map
-            </button>
-            <button className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-3 rounded-md font-medium">
-              Add Location
-            </button>
+            <a href="#map-section" className="bg-white text-[#3D2D1C] hover:bg-gray-100 px-6 py-3 rounded-md font-medium">
+              View All Locations
+            </a>
+            {isAuthenticated ? (
+              <Link href="/places/new" className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-3 rounded-md font-medium">
+                Add Location
+              </Link>
+            ) : (
+              <Link href="/users/sign_in" className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-6 py-3 rounded-md font-medium">
+                Sign In to Add
+              </Link>
+            )}
           </div>
         </div>
       </section>
 
       {/* Map Section */}
-      <section className="py-10 bg-gray-50">
+      <section id="map-section" className="py-10 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center mb-8">
             <div className="w-full md:w-1/2 mb-8 md:mb-0 md:pr-8">
               <h2 className="text-3xl font-bold mb-4 text-gray-800">Interactive Map</h2>
               <p className="text-gray-600 mb-6">
-                Explore all locations on our interactive map. Click on pins to view details about each location and discover new places to visit.
+                Explore all locations on our interactive map. Click on pins to view details about each location.
               </p>
               <div className="space-y-4">
                 <div className="flex items-center">
@@ -110,56 +139,90 @@ const Home = (props) => {
               </div>
             </div>
             <div className="w-full md:w-1/2">
-              <MapDisplay className="rounded-lg overflow-hidden shadow-lg" />
+              <MapDisplay places={locationsToDisplay} className="rounded-lg overflow-hidden shadow-lg" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Recent Locations Section */}
+      {/* Location Cards Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-800">Recent Locations</h2>
-            <a href="/locations" className="text-blue-600 hover:text-blue-800 font-medium">View All &rarr;</a>
+            <h2 className="text-3xl font-bold text-gray-800">All Locations</h2>
+            {isAuthenticated && (
+              <Link href="/places/new" className="bg-[#3D2D1C] text-white px-4 py-2 rounded-md hover:bg-[#4E3D2C] text-sm font-medium">
+                Add New Location
+              </Link>
+            )}
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {sampleLocations.map(location => (
-              <LocationCard 
-                key={location.id}
-                {...location}
-              />
-            ))}
-          </div>
-          
-          <div className="mt-12 text-center">
-            <button className="bg-[#3D2D1C] text-white hover:bg-[#4E3D2C] px-6 py-3 rounded-md font-medium">
-              Add Your Location
-            </button>
-          </div>
+          {locationsToDisplay.length === 0 ? (
+            <div className="text-center py-10 bg-gray-50 rounded-lg">
+              <p className="text-xl text-gray-500 mb-6">No locations have been added yet</p>
+              {isAuthenticated ? (
+                <Link href="/places/new" className="bg-[#3D2D1C] text-white hover:bg-[#4E3D2C] px-6 py-3 rounded-md font-medium">
+                  Add First Location
+                </Link>
+              ) : (
+                <Link href="/users/sign_in" className="bg-[#3D2D1C] text-white hover:bg-[#4E3D2C] px-6 py-3 rounded-md font-medium">
+                  Sign In to Add Location
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {locationsToDisplay.map(location => (
+                <LocationCard 
+                  key={location.id}
+                  id={location.id}
+                  name={location.name}
+                  description={location.description}
+                  latitude={location.latitude}
+                  longitude={location.longitude}
+                  createdBy={location.created_by}
+                  currentUserId={auth && auth.user ? auth.user.id : null}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-yellow-50">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4 text-gray-800">Join Our Community</h2>
-          <p className="text-xl max-w-2xl mx-auto mb-8 text-gray-600">
-            Connect with people who share your interests and discover new places around the world.
-          </p>
-          <div className="flex justify-center space-x-4">
-            <button className="bg-[#3D2D1C] text-white hover:bg-[#4E3D2C] px-6 py-3 rounded-md font-medium">
-              Sign Up Now
-            </button>
-            <button className="bg-transparent border-2 border-[#3D2D1C] text-[#3D2D1C] hover:bg-[#3D2D1C]/10 px-6 py-3 rounded-md font-medium">
-              Learn More
-            </button>
+      {/* CTA Section - Only show for non-authenticated users */}
+      {!isAuthenticated && (
+        <section className="py-16 bg-yellow-50">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold mb-4 text-gray-800">Join Our Community</h2>
+            <p className="text-xl max-w-2xl mx-auto mb-8 text-gray-600">
+              Sign up to add your own locations to our map and connect with others.
+            </p>
+            <div className="flex justify-center space-x-4">
+              <a 
+                href="/users/sign_up" 
+                className="bg-[#3D2D1C] text-white hover:bg-[#4E3D2C] px-6 py-3 rounded-md font-medium"
+              >
+                Sign Up Now
+              </a>
+              <a 
+                href="/users/sign_in" 
+                className="bg-transparent border-2 border-[#3D2D1C] text-[#3D2D1C] hover:bg-[#3D2D1C]/10 px-6 py-3 rounded-md font-medium"
+              >
+                Sign In
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </MainLayout>
   );
+};
+
+Home.propTypes = {
+  greeting: PropTypes.string,
+  description: PropTypes.string,
+  places: PropTypes.array,
+  auth: PropTypes.object
 };
 
 export default Home; 

@@ -1,70 +1,75 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Link } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 
-const LocationCard = ({ id, name, description, image, createdBy, latitude, longitude }) => {
+const LocationCard = ({ id, name, description, createdBy, latitude, longitude, currentUserId }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { delete: deleteLocation, processing } = useForm();
+
+  // Check if the current user is the creator of this location
+  const isOwner = currentUserId && createdBy && currentUserId === createdBy.id;
+
+  const handleDelete = () => {
+    deleteLocation(`/places/${id}`);
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <div className="h-40 bg-gray-300 relative">
-        {image ? (
-          <img 
-            src={image} 
-            alt={name} 
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-200">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+    <div className="bg-white rounded-lg border border-[#3D2D1C]/20 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full relative">
+      {/* Delete confirmation modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm mx-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">Delete Location</h3>
+            <p className="text-gray-600 mb-4">
+              Are you sure you want to delete "{name}"? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={processing}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              >
+                {processing ? 'Deleting...' : 'Delete Location'}
+              </button>
+            </div>
           </div>
-        )}
+        </div>
+      )}
+
+      <div className="p-5 flex-grow">
+        <h3 className="text-[#3D2D1C] font-semibold text-lg mb-2 truncate">{name}</h3>
+        <p className="text-gray-600 text-sm mb-3 line-clamp-2">{description || 'No description provided.'}</p>
         
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-          <h3 className="text-white font-medium text-lg truncate">{name}</h3>
+        <div className="flex items-center mb-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#3D2D1C]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span className="text-sm text-gray-500">{latitude}, {longitude}</span>
         </div>
       </div>
       
-      <div className="p-4">
-        <p className="text-gray-600 text-sm line-clamp-2 mb-3">{description || 'No description provided.'}</p>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center text-sm text-gray-500">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            {latitude}, {longitude}
+      <div className="px-5 py-3 border-t border-[#3D2D1C]/10 flex items-center justify-between bg-gray-50 rounded-b-lg">
+        <div className="flex items-center">
+          <div className="w-6 h-6 rounded-full bg-[#3D2D1C]/10 flex-shrink-0 mr-2 flex items-center justify-center text-[#3D2D1C]">
+            {createdBy && createdBy.name ? createdBy.name.charAt(0).toUpperCase() : '?'}
           </div>
-          
-          <div>
-            <Link 
-              href={`/locations/${id}`} 
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              View Details
-            </Link>
-          </div>
+          <span className="text-xs text-gray-600">Added by {createdBy ? createdBy.name : 'Unknown'}</span>
         </div>
         
-        {createdBy && (
-          <div className="mt-3 pt-3 border-t border-gray-100 flex items-center">
-            <div className="w-6 h-6 rounded-full bg-gray-300 flex-shrink-0 mr-2">
-              {createdBy.avatar ? (
-                <img 
-                  src={createdBy.avatar} 
-                  alt={createdBy.name} 
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full rounded-full flex items-center justify-center bg-indigo-100 text-indigo-500">
-                  {createdBy.name.charAt(0).toUpperCase()}
-                </div>
-              )}
-            </div>
-            <span className="text-xs text-gray-500">Added by {createdBy.name}</span>
-          </div>
+        {isOwner && (
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="text-red-600 hover:text-red-800 text-xs font-medium bg-white rounded px-2 py-1 shadow-sm border border-red-200"
+          >
+            Delete
+          </button>
         )}
       </div>
     </div>
@@ -75,13 +80,13 @@ LocationCard.propTypes = {
   id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   name: PropTypes.string.isRequired,
   description: PropTypes.string,
-  image: PropTypes.string,
   latitude: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   longitude: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   createdBy: PropTypes.shape({
     name: PropTypes.string.isRequired,
-    avatar: PropTypes.string,
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
   }),
+  currentUserId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 };
 
 export default LocationCard; 

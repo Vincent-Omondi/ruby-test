@@ -1,13 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import Navbar from './Navbar';
 
 const MainLayout = ({ title, children }) => {
+  // Get the auth prop from Inertia with proper fallback
+  let pageProps = {};
+  try {
+    pageProps = usePage().props || {};
+    console.log('MainLayout pageProps:', pageProps);
+  } catch (error) {
+    console.error('Error accessing page props:', error);
+  }
+  
+  const auth = pageProps.auth || { user: null };
+  console.log('MainLayout auth prop:', auth);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Head title={title} />
-      <Navbar />
+      
+      <Navbar auth={auth} />
       
       <main className="flex-grow">
         {children}

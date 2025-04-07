@@ -6,7 +6,35 @@ Rails.application.routes.draw do
   get 'locations/edit'
   get 'locations/update'
   get 'locations/destroy'
-  devise_for :users
+  
+  # Add redirects for common authentication paths
+  get '/login', to: redirect('/users/sign_in')
+  get '/signup', to: redirect('/users/sign_up')
+  
+  devise_for :users, controllers: {
+    sessions: 'users/sessions',
+    registrations: 'users/registrations'
+  }
+  
+  # Authenticated user routes
+  authenticate :user do
+    # Only keep the new, create, edit, update, and destroy actions for places
+    resources :places, except: [:index, :show]
+  end
+  
+  # Allow viewing individual places without authentication
+  resources :places, only: [:show]
+  
+  get 'protected', to: 'home#protected'
+  
+  # Placeholder routes for menu items
+  get 'people', to: 'home#index'
+  get 'projects', to: 'home#index'
+  get 'places', to: 'home#index' # Redirect places to home page
+  get 'ubuntu', to: 'home#index'
+  get 'about', to: 'home#index'
+  get 'blog', to: 'home#index'
+  
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

@@ -51,6 +51,64 @@
 
   <body>
     <%= content_for(:head) %>
-    <div id="app" data-page='<%= raw(@inertia_data.to_json) %>'></div>
+    <% 
+      # Prepare the Inertia data outside of the HTML
+      inertia_data = if defined?(@inertia)
+                       @inertia
+                     elsif defined?(@inertia_data)
+                       @inertia_data
+                     else
+                       nil
+                     end
+      
+      # Always ensure URL is included if we have data
+      if inertia_data
+        inertia_data[:url] ||= request.original_url
+        
+        # Debug what's coming from the controller
+        Rails.logger.debug "Inertia template received component: #{inertia_data[:component]}"
+        
+        # CRITICALLY IMPORTANT: Ensure component name is properly normalized
+        # This prevents the blank white page issue when navigating to auth pages
+        if inertia_data[:component].present?
+          # Map Devise routes to proper component names - be very aggressive with replacements
+          if inertia_data[:component].to_s == 'Sign_in' || request.path.include?('/users/sign_in')
+            Rails.logger.debug "Fixing component name from #{inertia_data[:component]} to auth/Login"
+            inertia_data[:component] = 'auth/Login'
+          elsif inertia_data[:component].to_s == 'Sign_up' || request.path.include?('/users/sign_up')
+            Rails.logger.debug "Fixing component name from #{inertia_data[:component]} to auth/Register"
+            inertia_data[:component] = 'auth/Register'
+          end
+          
+          # Ensure component name isn't altered if it includes slashes
+          if inertia_data[:component].include?('/')
+            inertia_data[:component] = inertia_data[:component].to_s
+          end
+        end
+        
+        # Don't try to manually merge shared data - it's already handled by the controller
+        # Just make sure we have props with the proper structure
+        inertia_data[:props] ||= {}
+        inertia_data[:props][:errors] ||= {}
+        
+        # FORCE auth data to be included - for debugging
+        if user_signed_in?
+          inertia_data[:props][:auth] = {
+            user: {
+              id: current_user.id,
+              email: current_user.email,
+              admin: current_user.respond_to?(:has_role?) ? current_user.has_role?(:admin) : false
+            }
+          }
+        else
+          inertia_data[:props][:auth] = { user: nil }
+        end
+        
+        data_attribute = raw(inertia_data.to_json)
+      else 
+        data_attribute = '{}'
+      end
+    %>
+    <div id="app" data-page='<%= data_attribute %>'></div>
   </body>
 </html> 
