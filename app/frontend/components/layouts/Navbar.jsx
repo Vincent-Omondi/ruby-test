@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 
 const Navbar = ({ auth = { user: null } }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   
   // Debug output to see what auth data is received
   useEffect(() => {
@@ -13,10 +12,6 @@ const Navbar = ({ auth = { user: null } }) => {
   
   const toggleMenu = () => {
     setIsOpen(!isOpen);
-  };
-  
-  const toggleUserMenu = () => {
-    setUserMenuOpen(!userMenuOpen);
   };
   
   // Check if user is authenticated - user object must have an id and email
@@ -101,59 +96,19 @@ const Navbar = ({ auth = { user: null } }) => {
           <div className="hidden md:block">
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
-                <div className="relative">
-                  <button
-                    onClick={toggleUserMenu}
-                    className="flex items-center space-x-2 bg-[#4E3D2C] hover:bg-[#5E4D3C] text-white px-4 py-2 rounded-md text-sm font-medium"
+                <div className="flex items-center">
+                  <span className="bg-[#4E3D2C] text-white px-4 py-2 rounded-md text-sm font-medium">
+                    {auth.user.email}
+                  </span>
+                  <Link 
+                    href="/users/sign_out"
+                    method="delete"
+                    as="button"
+                    type="button"
+                    className="ml-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                   >
-                    <span>{auth.user.email}</span>
-                    <svg 
-                      className="h-4 w-4" 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      viewBox="0 0 20 20" 
-                      fill="currentColor"
-                    >
-                      <path 
-                        fillRule="evenodd" 
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
-                        clipRule="evenodd" 
-                      />
-                    </svg>
-                  </button>
-                  
-                  {/* User Dropdown Menu */}
-                  {userMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                      <Link 
-                        href="/profile" 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Your Profile
-                      </Link>
-                      <Link 
-                        href="/dashboard" 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Dashboard
-                      </Link>
-                      <Link 
-                        href="/settings" 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Settings
-                      </Link>
-                      <div className="border-t border-gray-100"></div>
-                      <Link 
-                        href="/users/sign_out"
-                        method="delete"
-                        as="button"
-                        type="button"
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                      >
-                        Sign out
-                      </Link>
-                    </div>
-                  )}
+                    Sign out
+                  </Link>
                 </div>
               ) : (
                 <>
@@ -234,18 +189,6 @@ const Navbar = ({ auth = { user: null } }) => {
           {isAuthenticated ? (
             <>
               <Link 
-                href="/dashboard" 
-                className="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium"
-              >
-                Dashboard
-              </Link>
-              <Link 
-                href="/profile" 
-                className="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium"
-              >
-                Profile
-              </Link>
-              <Link 
                 href="/places/new" 
                 className="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium"
               >
@@ -256,12 +199,6 @@ const Navbar = ({ auth = { user: null } }) => {
                 className="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium"
               >
                 My Places
-              </Link>
-              <Link 
-                href="/settings" 
-                className="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium"
-              >
-                Settings
               </Link>
             </>
           ) : (
