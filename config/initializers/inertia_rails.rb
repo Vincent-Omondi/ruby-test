@@ -33,7 +33,7 @@ module InertiaRenderEnhancer
     # Intercept inertia render calls
     if options.is_a?(Hash) && options[:inertia].present?
       component_name = options[:inertia]
-      props = options[:props] || {}
+      original_props = options[:props] || {}
       
       # Special handling for Devise routes - normalize component names
       if request.path.include?('/users/sign_in')
@@ -41,6 +41,9 @@ module InertiaRenderEnhancer
       elsif request.path.include?('/users/sign_up') 
         component_name = 'auth/Register'
       end
+      
+      # Create a new props hash that preserves original props
+      props = original_props.dup
       
       # Ensure auth data is always included
       if user_signed_in? && !props[:auth]
@@ -56,9 +59,11 @@ module InertiaRenderEnhancer
       end
       
       Rails.logger.info "Enhanced inertia render: #{component_name} with props: #{props.keys}"
+      Rails.logger.info "Original props: #{original_props.keys}"
       
-      # Override the inertia component name for this render call
+      # Override the inertia component name and props
       args.first[:inertia] = component_name
+      args.first[:props] = props
       
       # Continue with the original render
       super
