@@ -18,22 +18,21 @@ Rails.application.routes.draw do
   
   # Authenticated user routes
   authenticate :user do
-    get 'dashboard', to: 'dashboard#index'
-    get 'profile', to: 'profile#show'
-    get 'profile/edit', to: 'profile#edit'
-    get 'settings', to: 'settings#index'
-    
-    # Places management for authenticated users
     get 'my-places', to: 'places#my_places'
-    resources :places
+    
+    # Only keep the new, create, edit, update, and destroy actions for places
+    resources :places, except: [:index, :show]
   end
+  
+  # Allow viewing individual places without authentication
+  resources :places, only: [:show]
   
   get 'protected', to: 'home#protected'
   
   # Placeholder routes for menu items
   get 'people', to: 'home#index'
   get 'projects', to: 'home#index'
-  get 'places', to: 'home#index'
+  get 'places', to: 'home#index' # Redirect places to home page
   get 'ubuntu', to: 'home#index'
   get 'about', to: 'home#index'
   get 'blog', to: 'home#index'
