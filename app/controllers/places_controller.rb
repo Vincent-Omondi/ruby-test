@@ -1,99 +1,93 @@
 class PlacesController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
+  before_action :set_place, only: [:show, :edit, :update, :destroy]
   
   def index
+    places = Place.includes(:user).all
     render inertia: 'places/Index', props: {
-      places: [
-        {
-          id: 1,
-          name: 'Tech Hub Coworking Space',
-          description: 'A modern workspace for tech professionals with high-speed internet and 24/7 access.',
-          latitude: '-1.2921',
-          longitude: '36.8219',
-          created_by: { name: 'Jane Smith' }
-        },
-        {
-          id: 2,
-          name: 'Serene Park Viewpoint',
-          description: 'Beautiful park with great views of the city skyline, perfect for outdoor activities.',
-          latitude: '-1.2823',
-          longitude: '36.8172',
-          created_by: { name: 'John Doe' }
-        }
-      ] # Replace with actual data from database
+      places: places.map { |place| place_json(place) }
     }
   end
   
   def show
     render inertia: 'places/Show', props: {
-      place: {
-        id: params[:id],
-        name: 'Sample Place',
-        description: 'This is a sample place description.',
-        latitude: '-1.2921',
-        longitude: '36.8219',
-        created_by: { name: 'Jane Smith' }
-      } # Replace with actual data from database
+      place: place_json(@place)
     }
   end
   
   def new
     render inertia: 'places/New', props: {
-      csrf_token: form_authenticity_token
+      csrf_token: form_authenticity_token,
+      errors: []
     }
   end
   
   def create
-    # Add place creation logic here
-    # For now, just redirect to the places list
-    redirect_to places_path, notice: 'Place created successfully'
+    Rails.logger.info "PlacesController#create - Params: #{place_params.inspect}"
+    @place = current_user.places.new(place_params)
+    
+    if @place.save
+      Rails.logger.info "PlacesController#create - Place saved successfully: #{@place.attributes}"
+      redirect_to root_path, notice: 'Place created successfully'
+    else
+      Rails.logger.error "PlacesController#create - Failed to save place: #{@place.errors.full_messages}"
+      render inertia: 'places/New', props: {
+        errors: @place.errors.full_messages || [],
+        csrf_token: form_authenticity_token
+      }, status: :unprocessable_entity
+    end
   end
   
   def edit
     render inertia: 'places/Edit', props: {
-      place: {
-        id: params[:id],
-        name: 'Sample Place',
-        description: 'This is a sample place description.',
-        latitude: '-1.2921',
-        longitude: '36.8219'
-      }, # Replace with actual data from database
+      place: place_json(@place),
       csrf_token: form_authenticity_token
     }
   end
   
   def update
-    # Add place update logic here
-    # For now, just redirect to the places list
-    redirect_to places_path, notice: 'Place updated successfully'
+    if @place.update(place_params)
+      redirect_to places_path, notice: 'Place updated successfully'
+    else
+      render inertia: 'places/Edit', props: {
+        place: place_json(@place),
+        errors: @place.errors.full_messages,
+        csrf_token: form_authenticity_token
+      }, status: :unprocessable_entity
+    end
   end
   
   def destroy
-    # Add place deletion logic here
-    # For now, just redirect to the places list
+    @place.destroy
     redirect_to places_path, notice: 'Place deleted successfully'
   end
   
   def my_places
+    places = current_user.places
     render inertia: 'places/MyPlaces', props: {
-      places: [
-        {
-          id: 1,
-          name: 'My Tech Hub',
-          description: 'A personal workspace.',
-          latitude: '-1.2921',
-          longitude: '36.8219',
-          created_at: '2023-01-15'
-        },
-        {
-          id: 2,
-          name: 'Favorite Park',
-          description: 'My favorite park in the city.',
-          latitude: '-1.2823',
-          longitude: '36.8172',
-          created_at: '2023-02-20'
-        }
-      ] # Replace with actual data from database filtered by current_user
+      places: places.map { |place| place_json(place) }
+    }
+  end
+  
+  private
+  
+  def set_place
+    @place = Place.find(params[:id])
+  end
+  
+  def place_params
+    params.require(:place).permit(:name, :description, :latitude, :longitude)
+  end
+  
+  def place_json(place)
+    {
+      id: place.id,
+      name: place.name,
+      description: place.description,
+      latitude: place.latitude.to_s,
+      longitude: place.longitude.to_s,
+      created_at: place.created_at,
+      created_by: place.created_by
     }
   end
 end 
