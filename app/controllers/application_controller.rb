@@ -23,7 +23,10 @@ class ApplicationController < ActionController::Base
     
     @inertia[:component] ||= last_segment.capitalize
     @inertia[:props] ||= {}
+    
+    # Only set errors if they don't exist - don't override existing props!
     @inertia[:props][:errors] ||= {}
+    
     @inertia[:url] ||= request.original_url
   end
   
@@ -79,20 +82,29 @@ class ApplicationController < ActionController::Base
   end
 
   def set_inertia_share
+    # Only set auth data if not already provided by controller
+    auth_data = user_signed_in? ? {
+      user: {
+        id: current_user.id,
+        email: current_user.email,
+        admin: current_user.respond_to?(:has_role?) ? current_user.has_role?(:admin) : false
+      }
+    } : { user: nil }
+    
+    # Log inertia props for debugging
+    Rails.logger.info "Before set_inertia_share - Props keys: #{@inertia[:props].keys}" if @inertia && @inertia[:props]
+    
     inertia_shared_data do
       {
-        auth: user_signed_in? ? {
-          user: {
-            id: current_user.id,
-            email: current_user.email,
-            admin: current_user.respond_to?(:has_role?) ? current_user.has_role?(:admin) : false
-          }
-        } : { user: nil },
+        auth: auth_data,
         flash: {
           success: flash.notice,
           error: flash.alert
         }
       }
     end
+    
+    # Log after setting shared data
+    Rails.logger.info "After set_inertia_share - Props keys: #{@inertia[:props].keys}" if @inertia && @inertia[:props]
   end
 end
