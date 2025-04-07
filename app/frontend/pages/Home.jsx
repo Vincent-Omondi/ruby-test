@@ -181,6 +181,7 @@ const Home = ({ greeting, description, places = [], auth }) => {
                   latitude={location.latitude}
                   longitude={location.longitude}
                   createdBy={location.created_by}
+                  currentUserId={auth && auth.user ? auth.user.id : null}
                 />
               ))}
             </div>
