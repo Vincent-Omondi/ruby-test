@@ -158,14 +158,22 @@ const Navbar = ({ auth = { user: null } }) => {
               ) : (
                 <>
                   <a 
-                    href="/users/sign_in" 
+                    href="#"
                     className="text-white hover:text-gray-300 px-3 py-2 text-sm font-medium"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.location.href = '/users/sign_in';
+                    }}
                   >
                     Log in
                   </a>
                   <a 
-                    href="/users/sign_up" 
+                    href="#"
                     className="bg-white text-[#3D2D1C] hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.location.href = '/users/sign_up';
+                    }}
                   >
                     Sign up
                   </a>
@@ -298,14 +306,22 @@ const Navbar = ({ auth = { user: null } }) => {
             ) : (
               <>
                 <a 
-                  href="/users/sign_in" 
+                  href="#"
                   className="text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = '/users/sign_in';
+                  }}
                 >
                   Log in
                 </a>
                 <a 
-                  href="/users/sign_up" 
+                  href="#"
                   className="ml-4 bg-white text-[#3D2D1C] hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = '/users/sign_up';
+                  }}
                 >
                   Sign up
                 </a>

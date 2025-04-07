@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, Head } from '@inertiajs/react';
 import MainLayout from '../../components/layouts/MainLayout';
 
-const Login = ({ csrf_token, errors }) => {
-  const { data, setData, post, processing, reset } = useForm({
+const Login = ({ csrf_token, errors = [] }) => {
+  // Debug component loading
+  useEffect(() => {
+    console.log('Login component loaded with errors:', errors);
+  }, []);
+
+  const { data, setData, processing, setData: setFormData } = useForm({
     email: '',
     password: '',
     remember: false,
@@ -11,16 +16,47 @@ const Login = ({ csrf_token, errors }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    post('/users/sign_in', {
-      data: {
-        user: {
-          email: data.email,
-          password: data.password,
-          remember_me: data.remember
-        }
-      },
-      onSuccess: () => reset('password'),
-    });
+    console.log('Submitting login form with data:', data);
+    
+    // Use traditional form submission instead of Inertia for more reliable auth
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/users/sign_in';
+    form.style.display = 'none';
+    
+    // Add authenticity token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'authenticity_token';
+    csrfInput.value = csrf_token;
+    form.appendChild(csrfInput);
+    
+    // Add email
+    const emailInput = document.createElement('input');
+    emailInput.type = 'hidden';
+    emailInput.name = 'user[email]';
+    emailInput.value = data.email;
+    form.appendChild(emailInput);
+    
+    // Add password
+    const passwordInput = document.createElement('input');
+    passwordInput.type = 'hidden';
+    passwordInput.name = 'user[password]';
+    passwordInput.value = data.password;
+    form.appendChild(passwordInput);
+    
+    // Add remember me
+    if (data.remember) {
+      const rememberInput = document.createElement('input');
+      rememberInput.type = 'hidden';
+      rememberInput.name = 'user[remember_me]';
+      rememberInput.value = '1';
+      form.appendChild(rememberInput);
+    }
+    
+    // Submit the form
+    document.body.appendChild(form);
+    form.submit();
   };
 
   return (

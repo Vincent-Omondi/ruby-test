@@ -8,29 +8,13 @@ class Users::SessionsController < Devise::SessionsController
     clean_up_passwords(resource)
     yield resource if block_given?
     
-    # Use a simpler path format
-    begin
-      response = {
-        component: "auth/Login",  # Explicitly set the exact component name to match the file path
-        props: {
-          csrf_token: form_authenticity_token,
-          resource: resource,
-          resource_name: resource_name,
-          errors: []
-        },
-        url: request.original_url
-      }
-      
-      # Pass the exact component data directly
-      @inertia = response
-      render inertia: response[:component], props: response[:props], url: response[:url]
-    rescue => e
-      Rails.logger.error "Error rendering Login page: #{e.message}\n#{e.backtrace.join("\n")}"
-      render inertia: 'Error', props: {
-        status: 500,
-        message: "Error loading login page: #{e.message}"
-      }, status: 500
-    end
+    # Use a simple direct render approach with consistent component name
+    render inertia: "auth/Login", props: {
+      csrf_token: form_authenticity_token,
+      resource: resource,
+      resource_name: resource_name,
+      errors: flash[:alert] ? [flash[:alert]] : []
+    }
   end
 
   # POST /resource/sign_in
@@ -68,7 +52,7 @@ class Users::SessionsController < Devise::SessionsController
         resource: resource,
         resource_name: resource_name,
         errors: ["Invalid email or password."]
-      }, status: :unauthorized, url: request.original_url
+      }, status: :unauthorized
     end
   end
 

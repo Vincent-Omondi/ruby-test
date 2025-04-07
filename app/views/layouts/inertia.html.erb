@@ -65,9 +65,25 @@
       if inertia_data
         inertia_data[:url] ||= request.original_url
         
-        # Ensure component name isn't altered
-        if inertia_data[:component].present? && inertia_data[:component].include?('/')
-          inertia_data[:component] = inertia_data[:component].to_s
+        # Debug what's coming from the controller
+        Rails.logger.debug "Inertia template received component: #{inertia_data[:component]}"
+        
+        # CRITICALLY IMPORTANT: Ensure component name is properly normalized
+        # This prevents the blank white page issue when navigating to auth pages
+        if inertia_data[:component].present?
+          # Map Devise routes to proper component names - be very aggressive with replacements
+          if inertia_data[:component].to_s == 'Sign_in' || request.path.include?('/users/sign_in')
+            Rails.logger.debug "Fixing component name from #{inertia_data[:component]} to auth/Login"
+            inertia_data[:component] = 'auth/Login'
+          elsif inertia_data[:component].to_s == 'Sign_up' || request.path.include?('/users/sign_up')
+            Rails.logger.debug "Fixing component name from #{inertia_data[:component]} to auth/Register"
+            inertia_data[:component] = 'auth/Register'
+          end
+          
+          # Ensure component name isn't altered if it includes slashes
+          if inertia_data[:component].include?('/')
+            inertia_data[:component] = inertia_data[:component].to_s
+          end
         end
         
         # Don't try to manually merge shared data - it's already handled by the controller

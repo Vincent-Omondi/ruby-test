@@ -7,93 +7,154 @@ import "@hotwired/turbo-rails"
 import "./controllers"
 import ErrorComponent from '../frontend/pages/Error';
 
+// Preload critical auth components to prevent white screen issues
+import LoginComponent from '../frontend/pages/auth/Login.jsx';
+import RegisterComponent from '../frontend/pages/auth/Register.jsx';
+
+// Create a component cache to avoid loading issues
+const componentCache = {
+  'Error': ErrorComponent,
+  'auth/Login': LoginComponent,
+  'Login': LoginComponent,
+  'Sign_in': LoginComponent,
+  'auth/Register': RegisterComponent,
+  'Register': RegisterComponent,
+  'Sign_up': RegisterComponent
+};
+
 // Initialize Inertia.js progress indicator
 InertiaProgress.init({
   color: '#3D2D1C',
   showSpinner: true,
 });
 
+// Utility function to handle clicks on auth page links
+function setupAuthLinkInterceptor() {
+  document.addEventListener('click', (event) => {
+    // Check if the clicked element is a link
+    let target = event.target;
+    while (target && target.tagName !== 'A') {
+      target = target.parentElement;
+    }
+    
+    if (target && target.tagName === 'A') {
+      const href = target.getAttribute('href');
+      if (href && (href.includes('/users/sign_in') || href.includes('/users/sign_up'))) {
+        console.log('Auth link clicked, forcing full page navigation');
+        event.preventDefault();
+        window.location.href = href;
+      }
+    }
+  });
+}
+
 // Create Inertia App
 document.addEventListener('DOMContentLoaded', () => {
   const el = document.getElementById('app');
   
-  if (el) {
-    try {
-      // Get the page content from the data attribute
-      const pageContent = el.dataset.page;
-      console.log('Raw page content:', pageContent);
-      
-      // Check if page content is valid before parsing
-      if (!pageContent || pageContent === '{}' || pageContent.trim() === '') {
-        console.error('Empty page content - redirecting to home page');
-        window.location.href = '/';
-        return;
-      }
-      
-      // Try to parse the JSON data
-      let pageData;
-      try {
-        pageData = JSON.parse(pageContent);
-        
-        // Debug check for props content
-        if (pageData && pageData.props) {
-          console.log('All page props keys:', Object.keys(pageData.props));
-        }
-        
-        // Ensure auth is always present
-        if (pageData && pageData.props && !pageData.props.auth) {
-          console.log('Adding default auth object to props');
-          pageData.props.auth = { user: null };
-        } else if (pageData && pageData.props && pageData.props.auth) {
-          console.log('Auth data found:', pageData.props.auth);
-          
-          // Check if user is authenticated
-          if (pageData.props.auth.user) {
-            console.log('User is authenticated:', pageData.props.auth.user);
-          } else {
-            console.log('User is not authenticated');
-          }
-        }
-      } catch (jsonError) {
-        console.error('Error parsing JSON data:', jsonError);
-        console.error('Raw content that failed to parse:', pageContent);
-        // Create a default page data with Error component
-        pageData = {
-          component: 'Error',
-          props: { status: 500, message: 'Failed to parse page data' },
-          url: window.location.pathname + window.location.search
-        };
-      }
-      
-      console.log('Parsed page data:', pageData);
-      
-      if (!pageData || !pageData.component) {
-        console.error('Invalid Inertia page data - missing component name');
-        window.location.href = '/';
-        return;
-      }
-      
-      // Ensure URL is set to prevent 'this.page.url is undefined' error
-      if (!pageData.url) {
-        pageData.url = window.location.pathname + window.location.search;
-      }
-      
-      // Initialize Inertia with the page data
-      initInertia(pageData);
-    } catch (error) {
-      console.error('Error initializing Inertia app:', error);
-      
-      // Fallback to an error message in the DOM if all else fails
-      if (el) {
-        el.innerHTML = `<div style="padding: 20px; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;">
-          <h1>Error Initializing Application</h1>
-          <p>${error.message || 'Unknown error'}</p>
-          <p><a href="/" style="color: #721c24; text-decoration: underline;">Return to Home</a></p>
-        </div>`;
-      }
-    }
-  } else {
+  if (!el) {
     console.error('No #app element found for Inertia mounting');
+    return;
+  }
+  
+  // IMPORTANT: Check if we're on an auth page
+  const isAuthPage = window.location.pathname.includes('/users/sign_in') || 
+                     window.location.pathname.includes('/users/sign_up');
+                     
+  if (isAuthPage) {
+    console.log('Auth page detected - initializing with special handling');
+    setupAuthLinkInterceptor();
+  }
+  
+  try {
+    // Get the page content from the data attribute
+    const pageContent = el.dataset.page;
+    console.log('Raw page content:', pageContent);
+    
+    // Check if page content is valid before parsing
+    if (!pageContent || pageContent === '{}' || pageContent.trim() === '') {
+      console.error('Empty page content - redirecting to home page');
+      window.location.href = '/';
+      return;
+    }
+    
+    // Try to parse the JSON data
+    let pageData;
+    try {
+      pageData = JSON.parse(pageContent);
+      
+      // Debug check for props content
+      if (pageData && pageData.props) {
+        console.log('All page props keys:', Object.keys(pageData.props));
+      }
+      
+      // Ensure auth is always present
+      if (pageData && pageData.props && !pageData.props.auth) {
+        console.log('Adding default auth object to props');
+        pageData.props.auth = { user: null };
+      } else if (pageData && pageData.props && pageData.props.auth) {
+        console.log('Auth data found:', pageData.props.auth);
+        
+        // Check if user is authenticated
+        if (pageData.props.auth.user) {
+          console.log('User is authenticated:', pageData.props.auth.user);
+        } else {
+          console.log('User is not authenticated');
+        }
+      }
+      
+      // Special handling for auth pages
+      if (isAuthPage && pageData.component) {
+        if (pageData.component === 'Sign_in' || pageData.component === 'auth/Login') {
+          console.log('Setting component explicitly to auth/Login');
+          pageData.component = 'auth/Login';
+        } else if (pageData.component === 'Sign_up' || pageData.component === 'auth/Register') {
+          console.log('Setting component explicitly to auth/Register');
+          pageData.component = 'auth/Register';
+        }
+      }
+    } catch (jsonError) {
+      console.error('Error parsing JSON data:', jsonError);
+      console.error('Raw content that failed to parse:', pageContent);
+      // Create a default page data with Error component
+      pageData = {
+        component: 'Error',
+        props: { status: 500, message: 'Failed to parse page data' },
+        url: window.location.pathname + window.location.search
+      };
+    }
+    
+    console.log('Parsed page data:', pageData);
+    
+    if (!pageData || !pageData.component) {
+      console.error('Invalid Inertia page data - missing component name');
+      window.location.href = '/';
+      return;
+    }
+    
+    // Ensure URL is set to prevent 'this.page.url is undefined' error
+    if (!pageData.url) {
+      pageData.url = window.location.pathname + window.location.search;
+    }
+    
+    // Initialize Inertia with the page data
+    initInertia(pageData);
+    
+    // Set up interceptor AFTER initializing Inertia
+    if (!isAuthPage) {
+      setupAuthLinkInterceptor();
+    }
+  } catch (error) {
+    console.error('Error initializing Inertia app:', error);
+    
+    // Fallback to an error message in the DOM if all else fails
+    if (el) {
+      el.innerHTML = `<div style="padding: 20px; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;">
+        <h1>Error Initializing Application</h1>
+        <p>${error.message || 'Unknown error'}</p>
+        <p><a href="/" style="color: #721c24; text-decoration: underline;">Return to Home</a></p>
+      </div>`;
+    }
   }
   
   // Function to initialize Inertia with the given page data
@@ -103,6 +164,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!name) {
           console.error('Component name is undefined');
           return ErrorComponent;
+        }
+        
+        // Check if the component is in our preloaded cache
+        if (componentCache[name]) {
+          console.log(`Loading component from cache: ${name}`);
+          return componentCache[name];
         }
         
         try {
@@ -115,19 +182,25 @@ document.addEventListener('DOMContentLoaded', () => {
           
           try {
             // First, normalize the component name to match file structure
-            // Convert controller paths like "users/sign_in" to components
             let componentPath = name;
             
-            // Check if this is a Rails controller path that needs remapping
-            if (componentPath === 'Sign_in') {
-              componentPath = 'auth/Login';
-            } else if (componentPath === 'Sign_up') {
-              componentPath = 'auth/Register';
+            // Handle auth paths more reliably
+            if (name === 'auth/Login' || name === 'Login' || name === 'Sign_in') {
+              console.log('Loading auth/Login component');
+              const LoginComponent = (await import('../frontend/pages/auth/Login.jsx')).default;
+              console.log('Login component loaded:', LoginComponent);
+              return LoginComponent;
             }
             
-            console.log(`Attempting to load: ${componentPath}`);
+            if (name === 'auth/Register' || name === 'Register' || name === 'Sign_up') {
+              console.log('Loading auth/Register component');
+              const RegisterComponent = (await import('../frontend/pages/auth/Register.jsx')).default;
+              console.log('Register component loaded:', RegisterComponent);
+              return RegisterComponent;
+            }
             
             // Import relative to where this file is located - support nested components
+            console.log(`Attempting to load from path: ../frontend/pages/${componentPath}.jsx`);
             const module = await import(`../frontend/pages/${componentPath}.jsx`);
             console.log('Module loaded:', module);
             
@@ -141,15 +214,13 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(`Error importing component: ${name}`, importError);
             console.error('Import error message:', importError.message);
             
-            // Try with alternate slashing - convert path with slashes to directory structure
-            if (name.includes('/')) {
-              try {
-                console.log(`Trying alternate import for ${name}`);
-                return (await import(`../frontend/pages/${name}.jsx`)).default;
-              } catch (alternateError) {
-                console.error(`Alternate import also failed for ${name}:`, alternateError.message);
-                return ErrorComponent;
-              }
+            // Last resort - try loading auth pages directly
+            if (name.includes('sign_in') || name === 'Sign_in') {
+              return LoginComponent;
+            }
+            
+            if (name.includes('sign_up') || name === 'Sign_up') {
+              return RegisterComponent;
             }
             
             return ErrorComponent;

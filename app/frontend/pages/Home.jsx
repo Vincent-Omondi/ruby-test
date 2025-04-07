@@ -157,10 +157,22 @@ const Home = (props) => {
             Connect with people who share your interests and discover new places around the world.
           </p>
           <div className="flex justify-center space-x-4">
-            <button className="bg-[#3D2D1C] text-white hover:bg-[#4E3D2C] px-6 py-3 rounded-md font-medium">
+            <button 
+              className="bg-[#3D2D1C] text-white hover:bg-[#4E3D2C] px-6 py-3 rounded-md font-medium"
+              onClick={() => {
+                // Force a full page load for signup
+                window.location.href = '/users/sign_up';
+              }}
+            >
               Sign Up Now
             </button>
-            <button className="bg-transparent border-2 border-[#3D2D1C] text-[#3D2D1C] hover:bg-[#3D2D1C]/10 px-6 py-3 rounded-md font-medium">
+            <button 
+              className="bg-transparent border-2 border-[#3D2D1C] text-[#3D2D1C] hover:bg-[#3D2D1C]/10 px-6 py-3 rounded-md font-medium"
+              onClick={() => {
+                // Force a full page load for login
+                window.location.href = '/users/sign_in';
+              }}
+            >
               Learn More
             </button>
           </div>

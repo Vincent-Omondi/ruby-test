@@ -35,6 +35,13 @@ module InertiaRenderEnhancer
       component_name = options[:inertia]
       props = options[:props] || {}
       
+      # Special handling for Devise routes - normalize component names
+      if request.path.include?('/users/sign_in')
+        component_name = 'auth/Login'
+      elsif request.path.include?('/users/sign_up') 
+        component_name = 'auth/Register'
+      end
+      
       # Ensure auth data is always included
       if user_signed_in? && !props[:auth]
         props[:auth] = {
@@ -49,6 +56,9 @@ module InertiaRenderEnhancer
       end
       
       Rails.logger.info "Enhanced inertia render: #{component_name} with props: #{props.keys}"
+      
+      # Override the inertia component name for this render call
+      args.first[:inertia] = component_name
       
       # Continue with the original render
       super
