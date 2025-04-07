@@ -34,35 +34,93 @@ const MapDisplay = ({ places = [], className = '' }) => {
   useEffect(() => {
     if (!mapInitialized || !places.length) return;
     
-    // Default center (can be calculated from places)
-    const defaultLat = -1.292;
-    const defaultLng = 36.821;
+    // Calculate center from places
+    let totalLat = 0;
+    let totalLng = 0;
+    let validPlaces = 0;
+    
+    places.forEach(place => {
+      const lat = parseFloat(place.latitude);
+      const lng = parseFloat(place.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        totalLat += lat;
+        totalLng += lng;
+        validPlaces++;
+      }
+    });
+    
+    // Default center if no valid coordinates or use average of places
+    const centerLat = validPlaces ? totalLat / validPlaces : -1.292;
+    const centerLng = validPlaces ? totalLng / validPlaces : 36.821;
+    
+    console.log(`Map center calculated as: ${centerLat}, ${centerLng}`);
     
     // Initialize map
     const L = window.L;
     const mapEl = document.getElementById('map');
     
-    // Create map instance
-    const map = L.map(mapEl).setView([defaultLat, defaultLng], 13);
+    // Clean up any existing map instances more thoroughly
+    if (window.currentMap) {
+      window.currentMap.remove();
+      window.currentMap = null;
+    }
+    
+    // Create map instance with proper zoom level
+    const map = L.map(mapEl).setView([centerLat, centerLng], 10); // Decreased zoom level to 10
+    window.currentMap = map; // Store reference for cleanup
     
     // Add tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
     
+    console.log('Adding markers for places:', places);
+    
+    // Create bounds to fit all markers
+    const bounds = L.latLngBounds();
+    
     // Add markers for each place
     places.forEach(place => {
-      const marker = L.marker([place.latitude, place.longitude]).addTo(map);
-      marker.bindPopup(`
-        <strong>${place.name}</strong><br>
-        ${place.description}<br>
-        <em>Added by: ${place.created_by.name}</em>
-      `);
+      try {
+        // Convert string coordinates to numbers
+        const lat = parseFloat(place.latitude);
+        const lng = parseFloat(place.longitude);
+        
+        if (isNaN(lat) || isNaN(lng)) {
+          console.error(`Invalid coordinates for place ${place.id}: ${place.latitude}, ${place.longitude}`);
+          return;
+        }
+        
+        console.log(`Adding marker for ${place.name} at ${lat}, ${lng}`);
+        const marker = L.marker([lat, lng]).addTo(map);
+        marker.bindPopup(`
+          <strong>${place.name}</strong><br>
+          ${place.description}<br>
+          <em>Added by: ${place.created_by.name}</em>
+        `);
+        
+        // Extend bounds to include this marker
+        bounds.extend([lat, lng]);
+      } catch (error) {
+        console.error(`Error adding marker for place ${place.id}:`, error);
+      }
     });
+    
+    // Only fit bounds if we have valid coordinates
+    if (bounds.isValid()) {
+      // Fit the map to the bounds with some padding
+      map.fitBounds(bounds, {
+        padding: [50, 50],
+        maxZoom: 13
+      });
+    }
     
     // Clean up
     return () => {
-      map.remove();
+      if (window.currentMap) {
+        window.currentMap.remove();
+        window.currentMap = null;
+      }
     };
   }, [mapInitialized, places]);
   
@@ -97,7 +155,7 @@ const MapDisplay = ({ places = [], className = '' }) => {
 
 MapDisplay.propTypes = {
   places: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number,
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     name: PropTypes.string,
     description: PropTypes.string,
     latitude: PropTypes.string,
