@@ -44,9 +44,21 @@
       }
     </style>
     
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" rescue nil %>
-    <%= stylesheet_link_tag "application.tailwind", "data-turbo-track": "reload" rescue nil %>
-    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" rescue nil %>
+    <% if Rails.application.assets_manifest.assets["application.css"] %>
+      <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <% end %>
+
+    <% if Rails.application.assets_manifest.assets["application.tailwind.css"] %>  
+      <%= stylesheet_link_tag "application.tailwind", "data-turbo-track": "reload" %>
+    <% end %>
+
+    <% if Rails.application.assets_manifest.assets["application.js"] %>
+      <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+    <% else %>
+      <!-- Fallback to CDN assets -->
+      <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+      <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <% end %>
   </head>
 
   <body>
