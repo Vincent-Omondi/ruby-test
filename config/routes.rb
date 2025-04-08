@@ -1,12 +1,5 @@
 Rails.application.routes.draw do
-  get 'locations/index'
-  get 'locations/show'
-  get 'locations/new'
-  get 'locations/create'
-  get 'locations/edit'
-  get 'locations/update'
-  get 'locations/destroy'
-  
+ 
   # Add redirects for common authentication paths
   get '/login', to: redirect('/users/sign_in')
   get '/signup', to: redirect('/users/sign_up')
