@@ -44,8 +44,8 @@
       }
     </style>
     
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "application.tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" rescue nil %>
+    <%= stylesheet_link_tag "application.tailwind", "data-turbo-track": "reload" rescue nil %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   </head>
 

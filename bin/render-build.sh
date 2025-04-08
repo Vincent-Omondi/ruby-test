@@ -6,11 +6,22 @@ set -o errexit
 bundle install
 yarn install
 
-# Build frontend assets
+# Ensure build directories exist
+mkdir -p app/assets/builds
+
+# Build frontend assets properly
+echo "Building CSS..."
+yarn build:css
+
+echo "Building JS..."
+yarn build
+
+# Build Rails assets
+echo "Precompiling Rails assets..."
 bundle exec rails assets:precompile
 bundle exec rails assets:clean
 
-# Run standard migrations - the initializer will handle table creation if needed
+# Run standard migrations
 bundle exec rails db:migrate
 
 # Use the custom rake task to force reset the database
