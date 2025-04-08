@@ -10,5 +10,6 @@ yarn install
 bundle exec rails assets:precompile
 bundle exec rails assets:clean
 
-# Run migrations
+# Reset database and run migrations (for first deployment)
+bundle exec rails db:schema:load
 bundle exec rails db:migrate
